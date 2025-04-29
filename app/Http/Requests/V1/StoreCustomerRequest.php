@@ -11,8 +11,11 @@ class StoreCustomerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        $user = $this->user();
+    
+        return $user != null && $user->tokenCan('create');
     }
+    
 
     /**
      * Get the validation rules that apply to the request.

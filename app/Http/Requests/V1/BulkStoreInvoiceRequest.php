@@ -12,7 +12,9 @@ class BulkStoreInvoiceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        $user = $this->user();
+
+        return $user != null && $user->tokenCan('create');
     }
 
     /**
@@ -25,7 +27,7 @@ class BulkStoreInvoiceRequest extends FormRequest
         return [
             '*.customerId' => ['required', 'integer'],
             '*.amount' => ['required', 'numeric'],
-            '*.status' => ['required',  Rule::in(['B', 'P', 'V', 'b', 'p', 'v'])],
+            '*.status' => ['required', Rule::in(['B', 'P', 'V', 'b', 'p', 'v'])],
             '*.billedDate' => ['required', 'date_format:Y-m-d H:i:s'],
             '*.paidDate' => ['date_format:Y-m-d H:i:s', 'nullable'],
             'state' => ['required'],
@@ -33,10 +35,11 @@ class BulkStoreInvoiceRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation() {
+    protected function prepareForValidation()
+    {
         $data = [];
 
-        foreach($this->toArray() as $obj) {
+        foreach ($this->toArray() as $obj) {
             $obj['customerid'] = $obj['customerId'] ?? null;
             $obj['billed_date'] = $obj['billedDate'] ?? null;
             $obj['paid_date'] = $obj['paidDate'] ?? null;
